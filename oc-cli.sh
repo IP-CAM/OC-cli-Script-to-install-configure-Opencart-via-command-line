@@ -53,6 +53,23 @@ usuario_db=${usuario_db:-"opencart"}
 read -p "Nome de usuário do banco de dados? [Padrão: opencartpass]: " senha_db
 senha_db=${senha_db:-"opencartpass"}
 
+read -p "Digite a senha do root do MySQL [Padrão: Nenhuma]: " rootpasswd
+rootok=$(mysql -uroot -p$rootpasswd -ANe "SELECT COUNT(1) Password_is_OK FROM mysql.user WHERE user='root' AND password=PASSWORD('$rootpasswd')" 2> /dev/null)
+
+if [ "$rootok" != "1" ]; then 
+	echo "Erro na senha do root ou servidor mysql não iniciado."
+	exit 1
+fi
+
+# 5.7.6 and above
+#CREATE USER IF NOT EXISTS 'user'@'localhost' IDENTIFIED BY 'password';
+
+# Below 5.7.6
+#GRANT ALL ON `database`.* TO 'user'@'localhost' IDENTIFIED BY 'password';
+
+
+
+
 read -p "Nome do banco de dados? [Padrão: opencart]: " banco
 banco=${banco:-"opencart"}
 
@@ -81,4 +98,9 @@ echo "Banco:   $banco"
 echo "Pasta:   $pasta"
 echo $sep
 
+
+mysql -uroot -p${rootpasswd} -e "CREATE DATABASE ${banco} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
+mysql -uroot -p${rootpasswd} -e "CREATE USER ${usuario_db}@localhost IDENTIFIED BY '${senha_db}';"
+mysql -uroot -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${banco}.* TO '${usuario_db}'@'localhost';"
+mysql -uroot -p${rootpasswd} -e "FLUSH PRIVILEGES;"
 
