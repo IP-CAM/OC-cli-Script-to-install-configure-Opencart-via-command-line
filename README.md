@@ -5,7 +5,7 @@ Um script para instalar e configurar o Opencart usando a linha comando de forma 
 ### Uso
 
 ```bash
-# bash <(curl -s -L https://git.io/vhYxy)
+# bash <(curl -s -H 'Cache-Control: no-cache' -L https://git.io/vhYxy)
 ```
 ou  
 ```bash  
