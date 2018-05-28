@@ -7,6 +7,8 @@
 # Criado em: 2018-05-24 15:47:04
 # Última alteração: 2018-05-28 17:51:01
 
+[ "$(id -u)" != "0" ] && echo "Esse script somente pode ser executado pelo root." && exit 1
+
 sep="---------------------------------------------"
 
 banner() {
@@ -39,20 +41,33 @@ ajuda() {
 
 banner
 
-read -p "Nome do site? [Padrão: nenhum]: " nome
-[ -z $nome ] && echo "O site precisa de um nome. Abortando..." && exit 1
+read -p "Nome do site? [Padrão: Loja OpenCart]: " nome
+nome=${nome:-"Loja OpenCart"}
 
 read -p "Em qual pasta o Opencart deve ser instalado? [Padrão: $(pwd)]: " pasta
 pasta=${pasta:-"$(pwd)"}
 
-#read -p "Em qual pasta o Opencart deve ser instalado? [Padrão: $(pwd)]: " pasta
+read -p "Nome de usuário do banco de dados? [Padrão: opencart]: " usuario_db
+usuario_db=${usuario_db:-"opencart"}
 
-#read -p "Em qual pasta o Opencart deve ser instalado? [Padrão: $(pwd)]: " pasta
+read -p "Nome de usuário do banco de dados? [Padrão: opencartpass]: " senha_db
+senha_db=${senha_db:-"opencartpass"}
 
-#read -p "Em qual pasta o Opencart deve ser instalado? [Padrão: $(pwd)]: " pasta
-#pasta=${pasta:-$(pwd)}
+read -p "Nome do banco de dados? [Padrão: opencart]: " banco
+banco=${banco:-"opencart"}
 
-#pasta=${pasta:-$(pwd)}
+res=$(mysqlshow $banco| grep -v Wildcard | grep -o $banco)
+if [ "$res" == "$banco" ]; then
+    echo "O banco de dados $banco já existe, uma nova instalação irá apagar completamente este banco de dados."
+
+	read -p "Deseja prosseguir? [s/N]: " resposta
+	if [ $resposta = *[sS]* ]; then
+		mysql -Nse 'show tables' $banco | while read tabela; do mysql -e "drop table $tabela" $banco; done
+	else
+		exit 0
+	fi
+
+fi
 
 echo $sep
 banner
@@ -62,6 +77,7 @@ echo $sep
 echo "Site:    $nome"
 echo "Usuario: $usuario_db"
 echo "Senha:   $senha_db"
+echo "Banco:   $banco"
 echo "Pasta:   $pasta"
 echo $sep
 
