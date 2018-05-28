@@ -9,6 +9,9 @@
 
 [ "$(id -u)" != "0" ] && echo "Esse script somente pode ser executado pelo root." && exit 1
 
+pasta_backup="/var/backup/opencart"
+pasta_temp="/tmp/opencart"
+
 sep="---------------------------------------------"
 
 banner() {
@@ -86,6 +89,10 @@ if [ "$res" == "$banco" ]; then
 
 fi
 
+if [ -d $pasta ]; then
+	read -p "A pasta $pasta já existe! Fazer backup e criar uma nova?" resposta
+fi
+
 echo $sep
 banner
 echo $sep
@@ -98,9 +105,10 @@ echo "Banco:   $banco"
 echo "Pasta:   $pasta"
 echo $sep
 
-
 mysql -uroot -p${rootpasswd} -e "CREATE DATABASE ${banco} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
 mysql -uroot -p${rootpasswd} -e "CREATE USER ${usuario_db}@localhost IDENTIFIED BY '${senha_db}';"
 mysql -uroot -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${banco}.* TO '${usuario_db}'@'localhost';"
 mysql -uroot -p${rootpasswd} -e "FLUSH PRIVILEGES;"
 
+
+sql=$(find . -name "opencart*.sql" -print -quit)
