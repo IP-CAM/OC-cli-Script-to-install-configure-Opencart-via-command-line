@@ -76,13 +76,13 @@ fi
 read -p "Nome do banco de dados? [Padrão: opencart]: " banco
 banco=${banco:-"opencart"}
 
-res=$(mysqlshow $banco| grep -v Wildcard | grep -o $banco)
+res=$(mysqlshow -uroot -p$rootpasswd $banco| grep -v Wildcard | grep -o $banco)
 if [ "$res" == "$banco" ]; then
     echo "O banco de dados $banco já existe, uma nova instalação irá apagar completamente este banco de dados."
 
 	read -p "Deseja prosseguir? [s/N]: " resposta
 	if [ $resposta = *[sS]* ]; then
-		mysql -Nse 'show tables' $banco | while read tabela; do mysql -e "drop table $tabela" $banco; done
+		mysql -uroot -p$rootpasswd -Nse 'show tables' $banco | while read tabela; do mysql -e "drop table $tabela" $banco; done
 	else
 		exit 0
 	fi
@@ -111,4 +111,4 @@ mysql -uroot -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${banco}.* TO '${usuari
 mysql -uroot -p${rootpasswd} -e "FLUSH PRIVILEGES;"
 
 
-sql=$(find . -name "opencart*.sql" -print -quit)
+#sql=$(find . -name "opencart*.sql" -print -quit)
