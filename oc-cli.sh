@@ -84,7 +84,7 @@ res=$(mysqlshow -uroot -p$rootpasswd $banco| grep -v Wildcard | grep -o $banco 2
 if [ "$res" == "$banco" ]; then
     echo "O banco de dados $banco já existe, uma nova instalação irá apagar completamente este banco de dados."
 
-	read -n 1 -p "Deseja prosseguir? [s/N]: " resposta
+	read -n1 -p "Deseja prosseguir? [s/N]: " resposta
 	echo
 	if [[ $resposta = *[sS]* ]]; then
 		mysql -uroot -p$rootpasswd -Nse 'show tables' $banco | while read tabela; do mysql -e "drop table $tabela" $banco; done
@@ -94,15 +94,13 @@ if [ "$res" == "$banco" ]; then
 
 fi
 
-if 
-
 if [ -d $pasta ]; then
 	read -n 1 -p "A pasta $pasta já existe! Fazer backup e criar uma nova? [S/n]" resposta
 	echo
 	if [[ "$resposta" != *[nN]* ]]; then
 		length=${#pasta}
 		last_char=${STR:pasta-1:1}
-		[[ $last_char != "/" ]] && pasta="$pasta/"; :
+		[[ $last_char != "/" ]] && pasta="$pasta/";
 		rsync -avz $pasta $pasta_backup --exclude="$(basename $0)"
 	fi
 fi
@@ -130,13 +128,13 @@ if [[ "$resposta" != *[sS]* ]]; then
 fi
 
 echo "Baixando para: $pasta_temp/opencart-$ultima.zip..."
-curl -s -o $pasta_temp/opencart-$ultima.zip $(curl -s "https://api.github.com/repos/opencart/opencart/releases/latest" | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
+curl -s -L -o $pasta_temp/opencart-$ultima.zip $(curl -s -L "https://api.github.com/repos/opencart/opencart/releases/latest" | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 unzip "Descompatando a pasta upload/ de $pasta_temp/opencart-$ultima.zip..."
-unzip $pasta_temp/opencart-$ultima.zip "upload" -d $pasta_temp
+unzip $pasta_temp/opencart-$ultima.zip "upload/*" -d $pasta_temp
 
-unzip "Descompatando o arquivo opencart.sql de $pasta_temp/opencart-$ultima.zip..."
-unzip $pasta_temp/opencart-$ultima.zip "opencart.sql" -d $pasta_temp
+#unzip "Descompatando o arquivo opencart.sql de $pasta_temp/opencart-$ultima.zip..."
+#unzip $pasta_temp/opencart-$ultima.zip "opencart.sql" -d $pasta_temp
 
 mysql -uroot -p${rootpasswd} -e "CREATE DATABASE IF NOT EXISTS ${banco} /*\!40100 DEFAULT CHARACTER SET utf8 */;"
 mysql -uroot -p${rootpasswd} -e "CREATE USER IF NOT EXISTS ${usuario_db}@localhost IDENTIFIED BY '${senha_db}';"
