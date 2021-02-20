@@ -1,8 +1,8 @@
 ## oc-cli
 
-Um script para instalar e configurar o Opencart usando a linha comando de forma automática.
+Script to install and configure OpenCart via the command line. 
 
-### Uso
+### Use
 
 ```bash
 # bash <(curl -s -H 'Cache-Control: no-cache' -L https://git.io/vhYxy)
@@ -12,7 +12,7 @@ ou
 # bash <(curl -s -L https://raw.githubusercontent.com/sistematico/oc-cli/master/oc-cli.sh)
 ```
 
-### Suporte e contato
+### Suport
 
 - [E-mail](mailto:lucas@archlinux.com.br)
 - [Telegram](https://t.me/sistematico)
